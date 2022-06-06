@@ -19,14 +19,14 @@ object MainProgramForm: TMainProgramForm
   object LogBox: TListBox
     Left = 8
     Top = 8
-    Width = 566
-    Height = 129
+    Width = 485
+    Height = 220
     ItemHeight = 13
     TabOrder = 0
   end
   object LoadUnloadButton: TButton
     Left = 499
-    Top = 143
+    Top = 8
     Width = 75
     Height = 25
     Caption = 'Load DLL'
@@ -35,7 +35,7 @@ object MainProgramForm: TMainProgramForm
   end
   object GetVersionButton: TButton
     Left = 499
-    Top = 174
+    Top = 39
     Width = 75
     Height = 25
     Caption = 'GetVersion'
@@ -45,7 +45,7 @@ object MainProgramForm: TMainProgramForm
   end
   object ShowWindowButton: TButton
     Left = 499
-    Top = 205
+    Top = 70
     Width = 75
     Height = 25
     Caption = 'ShowWindow'

@@ -4,15 +4,11 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
+  CommonUnit;
 
 type
-  TVersion = packed record
-    Name: PChar;
-    Major: integer;
-    Minor: integer;
-  end;
-
+  TSetCallBack = procedure(CallBackProcedure: TOnCallBack); stdcall;
   TGetVersion = function(): TVersion; stdcall;
   TOpenWindow = function(Modal: boolean): integer; stdcall;
 
@@ -21,6 +17,7 @@ type
     LoadUnloadButton: TButton;
     GetVersionButton: TButton;
     ShowWindowButton: TButton;
+    // procedure OnCallBack(CallBackData: TCallBackData);
     procedure log(s: string);
     procedure LoadUnloadButtonClick(Sender: TObject);
     procedure GetVersionButtonClick(Sender: TObject);
@@ -29,6 +26,7 @@ type
     { Private declarations }
     fGetDllVersion: TGetVersion;
     fShowWindow: TOpenWindow;
+    fSetCallBack: TSetCallBack;
     fDLLHandle: THandle;
   public
     { Public declarations }
@@ -44,16 +42,27 @@ implementation
 
 {$R *.dfm}
 
+procedure //TMainProgramForm.
+OnCallBack(CallBackData: TCallBackData);
+begin
+  MainProgramForm.log('procedure TMainProgramForm.OnCallBack(CallBackData: TCallBackData);');
+end;
+
 procedure TMainProgramForm.log(s: string);
 begin
   LogBox.Items.Add(s);
+  LogBox.ItemIndex := LogBox.Count - 1;
 end;
 
 procedure TMainProgramForm.ShowWindowButtonClick(Sender: TObject);
 begin
   case fShowWindow(true) of
     mrOk:
-      log('OK');
+      log('Ok');
+    mrCancel:
+      log('Cancel');
+    mrClose:
+      log('Close');
   else
     log('else');
   end;
@@ -74,7 +83,8 @@ begin
   if Assigned(meth) then
   begin
     result := Format('%s @%p', [name, meth]);
-    Butan.Enabled := true;
+    if Butan <> nil then
+      Butan.Enabled := true;
   end
   else
     result := 'Failed to load "GetVersion".';
@@ -99,26 +109,13 @@ begin
       log('Library loaded.');
 
       log(LoadDllStuff(@fGetDllVersion, 'GetVersion', fDLLHandle, GetVersionButton));
-
       log(LoadDllStuff(@fShowWindow, 'OpenWindow', fDLLHandle, ShowWindowButton));
+      log(LoadDllStuff(@fSetCallBack, 'SetCallBack', fDLLHandle, nil));
 
-      { @fGetDllVersion := GetProcAddress(fDLLHandle, 'GetVersion');
-        if Assigned(fGetDllVersion) then
-        begin
-        log(Format('GetVersion @%p', [@fGetDllVersion]));
-        GetVersionButton.Enabled := true;
-        end
-        else
-        log('Failed to load "GetVersion".');
-
-        @fShowWindow := GetProcAddress(fDLLHandle, 'OpenWindow');
-        if Assigned(fShowWindow) then
-        begin
-        log(Format('OpenWindow @%p', [@fShowWindow]));
-        ShowWindowButton.Enabled := true;
-        end
-        else
-        log('Failed to load "OpenWindow".'); }
+      if Assigned(fSetCallBack) then
+        fSetCallBack(@OnCallBack)
+      else
+        log('Task failed successfully.');
 
       vFail := GetProcAddress(fDLLHandle, 'ILIKETURTLES');
       if Assigned(vFail) then

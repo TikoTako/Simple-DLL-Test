@@ -16,22 +16,31 @@ uses
   System.SysUtils,
   System.Variants,
   System.Classes,
+  System.IOUtils,
   Vcl.Graphics,
   Vcl.Controls,
   Vcl.Forms,
   Vcl.Dialogs,
   Vcl.StdCtrls,
-  MainDLLUnit in 'MainDLLUnit.pas' {DLLForm};
+  MainDLLUnit in 'MainDLLUnit.pas' {DLLForm} ,
+  ThreadUnit in 'ThreadUnit.pas',
+  CommonUnit in 'CommonUnit.pas';
 
 {$R *.res}
 
-type
+var
+  gBotKey: string = 'YOUR TELEGRAM BOT KEY HERE';
+  gCallBackProcedure: TOnCallBack;
 
-  TVersion = packed record
-    Name: PChar;
-    Major: integer;
-    Minor: integer;
-  end;
+procedure SetCallBack(CallBackProcedure: TOnCallBack); stdcall;
+var
+  vCBD: TCallBackData;
+begin
+  gCallBackProcedure := CallBackProcedure;
+  vCBD.SomeString := 'Y HALO THAR';
+  gCallBackProcedure(vCBD);
+  gCallBack := @CallBackProcedure;
+end;
 
 function GetVersion(): TVersion; stdcall;
 begin
@@ -50,10 +59,50 @@ begin
 end;
 
 exports
+  SetCallBack,
   GetVersion,
   OpenWindow;
 
+procedure CallBack(CBD: TCallBackData);
 begin
+  if Assigned(gCallBackProcedure) then
+    gCallBackProcedure(CBD);
+end;
+
+procedure DLLHandler(wut: integer);
+var
+  s: string;
+begin
+  case wut of
+    DLL_PROCESS_ATTACH:
+      begin
+        AllocConsole(); // Closing the console also close the program
+        WriteLn('DLL_PROCESS_ATTACH');
+      end;
+    DLL_PROCESS_DETACH:
+      begin
+        WriteLn('DLL_PROCESS_DETACH');
+        WriteLn('Press enter to exit.');
+        ReadLN(s); // This block main program too cuz the console is allocated there
+        FreeConsole();
+      end;
+    DLL_THREAD_ATTACH:
+      WriteLn('DLL_THREAD_ATTACH');
+    DLL_THREAD_DETACH:
+      WriteLn('DLL_THREAD_DETACH');
+  end;
+end;
+
+begin
+  DLLProc := DLLHandler;
+  DLLProc(DLL_PROCESS_ATTACH);
+
+  if FileExists('c:\bot.key') then
+    gBotKey := TFile.ReadAllText('c:\bot.key');
+
   DLLForm := TDLLForm.Create(nil);
+  DLLForm.Edit1.Text := gBotKey;
+
+  // starta thread qui che waita some event
 
 end.

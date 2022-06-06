@@ -10,12 +10,7 @@ type
   TDLLForm = class(TForm)
     BitBtn1: TBitBtn;
     BitBtn2: TBitBtn;
-    BitBtn3: TBitBtn;
-    BitBtn4: TBitBtn;
-    BitBtn5: TBitBtn;
-    BitBtn6: TBitBtn;
-    BitBtn7: TBitBtn;
-    BitBtn8: TBitBtn;
+    Edit1: TEdit;
   private
     { Private declarations }
   public
