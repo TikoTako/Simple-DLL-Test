@@ -3,7 +3,7 @@ object DLLForm: TDLLForm
   Top = 0
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsDialog
-  Caption = 'DLLForm'
+  Caption = 'Telegram bot setup.'
   ClientHeight = 65
   ClientWidth = 345
   Color = clBtnFace
@@ -14,6 +14,7 @@ object DLLForm: TDLLForm
   Font.Style = []
   OldCreateOrder = False
   Position = poDesktopCenter
+  OnCloseQuery = FormCloseQuery
   PixelsPerInch = 96
   TextHeight = 13
   object BitBtn1: TBitBtn
@@ -34,12 +35,20 @@ object DLLForm: TDLLForm
     NumGlyphs = 2
     TabOrder = 1
   end
-  object Edit1: TEdit
+  object BotKeyEdit: TEdit
     Left = 8
     Top = 8
     Width = 329
     Height = 21
     TabOrder = 2
-    Text = 'Edit1'
+    Text = '** BOT KEY **'
+  end
+  object ChatIDEdit: TEdit
+    Left = 8
+    Top = 35
+    Width = 169
+    Height = 21
+    TabOrder = 3
+    Text = '** CHAT ID **'
   end
 end

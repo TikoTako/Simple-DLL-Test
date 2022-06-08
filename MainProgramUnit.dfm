@@ -4,7 +4,7 @@ object MainProgramForm: TMainProgramForm
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'MainProgramForm'
-  ClientHeight = 236
+  ClientHeight = 260
   ClientWidth = 582
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -52,5 +52,30 @@ object MainProgramForm: TMainProgramForm
     Enabled = False
     TabOrder = 3
     OnClick = ShowWindowButtonClick
+  end
+  object StartThreadButton: TButton
+    Left = 499
+    Top = 101
+    Width = 75
+    Height = 25
+    Caption = 'Start Thread'
+    Enabled = False
+    TabOrder = 4
+  end
+  object ProgressBar1: TProgressBar
+    Left = 8
+    Top = 234
+    Width = 485
+    Height = 17
+    TabOrder = 5
+  end
+  object SendMessageButton: TButton
+    Left = 499
+    Top = 132
+    Width = 75
+    Height = 25
+    Caption = 'Send Message'
+    Enabled = False
+    TabOrder = 6
   end
 end

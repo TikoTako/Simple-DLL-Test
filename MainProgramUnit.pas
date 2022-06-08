@@ -5,18 +5,23 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
-  CommonUnit;
+  CommonUnit, Vcl.ComCtrls,
+  System.JSON;
 
 type
   TSetCallBack = procedure(CallBackProcedure: TOnCallBack); stdcall;
   TGetVersion = function(): TVersion; stdcall;
   TOpenWindow = function(Modal: boolean): integer; stdcall;
+  TStartThread = function(SomeString: PChar; SomeInt: integer): boolean; stdcall;
 
   TMainProgramForm = class(TForm)
     LogBox: TListBox;
     LoadUnloadButton: TButton;
     GetVersionButton: TButton;
     ShowWindowButton: TButton;
+    StartThreadButton: TButton;
+    ProgressBar1: TProgressBar;
+    SendMessageButton: TButton;
     // procedure OnCallBack(CallBackData: TCallBackData);
     procedure log(s: string);
     procedure LoadUnloadButtonClick(Sender: TObject);
@@ -42,8 +47,8 @@ implementation
 
 {$R *.dfm}
 
-procedure //TMainProgramForm.
-OnCallBack(CallBackData: TCallBackData);
+procedure // TMainProgramForm.
+  OnCallBack(CallBackData: TCallBackData);
 begin
   MainProgramForm.log('procedure TMainProgramForm.OnCallBack(CallBackData: TCallBackData);');
 end;

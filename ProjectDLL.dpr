@@ -11,25 +11,18 @@ library ProjectDLL;
   using PChar or ShortString parameters. }
 
 uses
-  Winapi.Windows,
-  Winapi.Messages,
-  System.SysUtils,
-  System.Variants,
-  System.Classes,
-  System.IOUtils,
-  Vcl.Graphics,
   Vcl.Controls,
-  Vcl.Forms,
-  Vcl.Dialogs,
-  Vcl.StdCtrls,
+  Winapi.Windows,
+  System.SysUtils,
+  System.IOUtils,
   MainDLLUnit in 'MainDLLUnit.pas' {DLLForm} ,
   ThreadUnit in 'ThreadUnit.pas',
-  CommonUnit in 'CommonUnit.pas';
+  CommonUnit in 'CommonUnit.pas',
+  SmollTelegramBotUnit in 'SmollTelegramBotUnit.pas';
 
 {$R *.res}
 
 var
-  gBotKey: string = 'YOUR TELEGRAM BOT KEY HERE';
   gCallBackProcedure: TOnCallBack;
 
 procedure SetCallBack(CallBackProcedure: TOnCallBack); stdcall;
@@ -58,10 +51,16 @@ begin
     DLLForm.Show;
 end;
 
+function StartThread(SomeString: PChar; SomeInt: integer): boolean; stdcall;
+begin
+  // check start
+end;
+
 exports
   SetCallBack,
   GetVersion,
-  OpenWindow;
+  OpenWindow,
+  StartThread;
 
 procedure CallBack(CBD: TCallBackData);
 begin
@@ -76,7 +75,7 @@ begin
   case wut of
     DLL_PROCESS_ATTACH:
       begin
-        AllocConsole(); // Closing the console also close the program
+        AllocConsole(); // Warning, closing the console also close the main program process
         WriteLn('DLL_PROCESS_ATTACH');
       end;
     DLL_PROCESS_DETACH:
@@ -97,12 +96,22 @@ begin
   DLLProc := DLLHandler;
   DLLProc(DLL_PROCESS_ATTACH);
 
-  if FileExists('c:\bot.key') then
-    gBotKey := TFile.ReadAllText('c:\bot.key');
-
+  // Since theres DLL_PROCESS_ATTACH this stuff can be moved there but whatever
   DLLForm := TDLLForm.Create(nil);
-  DLLForm.Edit1.Text := gBotKey;
+
+  SetLength(BotDataFile, MAX_PATH + 1);
+  GetModuleFileName(hInstance, PChar(BotDataFile), MAX_PATH);
+  BotDataFile := TPath.Combine(ExtractFilePath(Trim(BotDataFile)), 'BotData.txt');
+  if FileExists(BotDataFile) then
+  begin
+    // WARNING check lines count
+    var
+    vLines := TFile.ReadAllLines(BotDataFile);
+    DLLForm.BotKeyEdit.Text := vLines[0];
+    DLLForm.ChatIDEdit.Text := vLines[1];
+  end
+  else
+    OpenWindow(true);
 
   // starta thread qui che waita some event
-
 end.
