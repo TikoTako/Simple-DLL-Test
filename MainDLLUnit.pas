@@ -31,8 +31,14 @@ implementation
 procedure TDLLForm.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
   if ModalResult = mrOk then
-    TFile.Delete(BotDataFile);
-  TFile.WriteAllText(BotDataFile, DLLForm.BotKeyEdit.Text + #13#10 + DLLForm.ChatIDEdit.Text);
+    try
+      StrToInt64(DLLForm.ChatIDEdit.Text); // failing this will cause the exception and skip the saving
+      if FileExists(BotDataFile) then
+        TFile.Delete(BotDataFile);
+      TFile.WriteAllText(BotDataFile, DLLForm.BotKeyEdit.Text + #13#10 + DLLForm.ChatIDEdit.Text);
+    except
+      ModalResult := mrClose;
+    end;
 end;
 
 end.

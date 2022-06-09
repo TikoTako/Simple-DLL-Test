@@ -77,5 +77,6 @@ object MainProgramForm: TMainProgramForm
     Caption = 'Send Message'
     Enabled = False
     TabOrder = 6
+    OnClick = SendMessageButtonClick
   end
 end

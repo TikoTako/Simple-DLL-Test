@@ -13,6 +13,7 @@ type
   TGetVersion = function(): TVersion; stdcall;
   TOpenWindow = function(Modal: boolean): integer; stdcall;
   TStartThread = function(SomeString: PChar; SomeInt: integer): boolean; stdcall;
+  TSendMessage = function(Msg: PChar): PChar; stdcall;
 
   TMainProgramForm = class(TForm)
     LogBox: TListBox;
@@ -27,12 +28,15 @@ type
     procedure LoadUnloadButtonClick(Sender: TObject);
     procedure GetVersionButtonClick(Sender: TObject);
     procedure ShowWindowButtonClick(Sender: TObject);
+    procedure SendMessageButtonClick(Sender: TObject);
   private
     { Private declarations }
+    fDLLHandle: THandle;
     fGetDllVersion: TGetVersion;
     fShowWindow: TOpenWindow;
     fSetCallBack: TSetCallBack;
-    fDLLHandle: THandle;
+    fStartThread: TStartThread;
+    fSendMessage: TSendMessage;
   public
     { Public declarations }
   end;
@@ -57,6 +61,20 @@ procedure TMainProgramForm.log(s: string);
 begin
   LogBox.Items.Add(s);
   LogBox.ItemIndex := LogBox.Count - 1;
+end;
+
+procedure TMainProgramForm.SendMessageButtonClick(Sender: TObject);
+var
+  vMsg, vResp: string;
+begin
+  if InputQuery('Test program', 'Please type your name', vMsg) then
+  begin
+    vResp := fSendMessage(PChar(vMsg));
+    if not vResp.IsEmpty then
+      log(vResp)
+    else
+      log('Reply null, setup key and chat id by pressing [Show Window].');
+  end;
 end;
 
 procedure TMainProgramForm.ShowWindowButtonClick(Sender: TObject);
@@ -116,6 +134,8 @@ begin
       log(LoadDllStuff(@fGetDllVersion, 'GetVersion', fDLLHandle, GetVersionButton));
       log(LoadDllStuff(@fShowWindow, 'OpenWindow', fDLLHandle, ShowWindowButton));
       log(LoadDllStuff(@fSetCallBack, 'SetCallBack', fDLLHandle, nil));
+      log(LoadDllStuff(@fStartThread, 'StartThread', fDLLHandle, StartThreadButton));
+      log(LoadDllStuff(@fSendMessage, 'SendMessage', fDLLHandle, SendMessageButton));
 
       if Assigned(fSetCallBack) then
         fSetCallBack(@OnCallBack)

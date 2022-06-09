@@ -12,9 +12,9 @@ type
   private
     fUrl: string;
     fHIO: HINTERNET;
-    fHazKey:boolean;
+    fHazKey: boolean;
   public
-    constructor Create(BotKey: string; ChatID: UInt64);
+    constructor Create;
     procedure SetKeyAndChat(BotKey: string; ChatID: UInt64);
     function SendMessage(msg: string): string;
     destructor Destroy;
@@ -54,7 +54,7 @@ var
   vJSONstring: string;
   vBytesRead: cardinal;
   JSonValue: TJSonValue;
-  vBuffer: array [0 .. 10240] of Char;
+  vBuffer: array [0 .. 10240] of byte;
 begin
   if not fHazKey then
     Exit(string.Empty);
@@ -64,16 +64,18 @@ begin
     try
       // there should be a loop here but the reply is the json of the message sent so max size should be a bit more than 4kb
       // maxmessagelength(4096) + other stuff like ids, name, date, etc...
-      if not InternetReadFile(vHIOU, @vBuffer, 10240, vBytesRead) then
+      if not InternetReadFile(vHIOU, @vBuffer, SizeOf(vBuffer), vBytesRead) then
         ShowError(Format('InternetReadFile(vHIOU) > FAIL [%d]', [GetLastError]))
       else
-        vJSONstring := Trim(vBuffer);
+        vJSONstring := TEncoding.ANSI.GetString(vBuffer).Trim;
     finally
       if not InternetCloseHandle(vHIOU) then
         ShowError(Format('InternetCloseHandle(vHIOU) > FAIL [%d]', [GetLastError]));
     end
   else
     ShowError(Format('InternetOpenUrl > FAIL [%d]', [GetLastError]));
+
+  writeln(#1310 + vJSONstring + #1310);
 
   // to only check if sent or not theres no need for json stuff just check if the reply start with {"ok":false or {"ok":true
   if not string.IsNullOrEmpty(vJSONstring) then
@@ -90,9 +92,11 @@ end;
 
 destructor TSmollTelegramBot.Destroy;
 begin
+  writeln('TSmollTelegramBot Q_Q/');
   if Assigned(fHIO) then
     if not InternetCloseHandle(fHIO) then
       ShowError(Format('InternetCloseHandle(fHIO) > FAIL [%d]', [GetLastError]));
+  inherited Destroy;
 end;
 
 end.

@@ -24,6 +24,7 @@ uses
 
 var
   gCallBackProcedure: TOnCallBack;
+  SmollTelegramBot: TSmollTelegramBot;
 
 procedure SetCallBack(CallBackProcedure: TOnCallBack); stdcall;
 var
@@ -37,16 +38,20 @@ end;
 
 function GetVersion(): TVersion; stdcall;
 begin
-  result.Name := 'Potato';
-  result.Major := 69;
-  result.Minor := 420;
+  result.Name := 'ProjectDLL';
+  result.Major := 1;
+  result.Minor := 0;
 end;
 
 function OpenWindow(Modal: boolean): integer; stdcall;
 begin
   result := 0;
   if Modal then
-    result := DLLForm.ShowModal
+  begin
+    result := DLLForm.ShowModal;
+    if result = mrOk then
+      SmollTelegramBot.SetKeyAndChat(DLLForm.BotKeyEdit.Text, StrToInt64(DLLForm.ChatIDEdit.Text));
+  end
   else
     DLLForm.Show;
 end;
@@ -56,11 +61,17 @@ begin
   // check start
 end;
 
+function SendMessage(Msg: PChar): PChar; stdcall;
+begin
+  result := PChar(SmollTelegramBot.SendMessage(Msg));
+end;
+
 exports
   SetCallBack,
   GetVersion,
   OpenWindow,
-  StartThread;
+  StartThread,
+  SendMessage;
 
 procedure CallBack(CBD: TCallBackData);
 begin
@@ -80,6 +91,7 @@ begin
       end;
     DLL_PROCESS_DETACH:
       begin
+        SmollTelegramBot.Free;
         WriteLn('DLL_PROCESS_DETACH');
         WriteLn('Press enter to exit.');
         ReadLN(s); // This block main program too cuz the console is allocated there
@@ -98,20 +110,27 @@ begin
 
   // Since theres DLL_PROCESS_ATTACH this stuff can be moved there but whatever
   DLLForm := TDLLForm.Create(nil);
+  SmollTelegramBot := TSmollTelegramBot.Create;
 
   SetLength(BotDataFile, MAX_PATH + 1);
   GetModuleFileName(hInstance, PChar(BotDataFile), MAX_PATH);
   BotDataFile := TPath.Combine(ExtractFilePath(Trim(BotDataFile)), 'BotData.txt');
   if FileExists(BotDataFile) then
   begin
-    // WARNING check lines count
     var
     vLines := TFile.ReadAllLines(BotDataFile);
-    DLLForm.BotKeyEdit.Text := vLines[0];
-    DLLForm.ChatIDEdit.Text := vLines[1];
+    if Length(vLines) = 2 then
+      try
+        DLLForm.BotKeyEdit.Text := vLines[0];
+        DLLForm.ChatIDEdit.Text := vLines[1];
+        SmollTelegramBot.SetKeyAndChat(vLines[0], StrToInt64(vLines[1]));
+      except
+        on ex: Exception do
+          WriteLn('TFile.ReadAllLines(BotDataFile) >> ' + ex.Message);
+      end;
   end
-  else
-    OpenWindow(true);
+  else if OpenWindow(true) = mrOk then
+    SmollTelegramBot.SetKeyAndChat(DLLForm.BotKeyEdit.Text, StrToInt64(DLLForm.ChatIDEdit.Text));
 
   // starta thread qui che waita some event
 end.
