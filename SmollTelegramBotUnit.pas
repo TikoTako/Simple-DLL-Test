@@ -23,10 +23,10 @@ type
 implementation
 
 const
-  cUserAgent = 'TSmollTelegramBot/1.0';
+  cUserAgent = 'SmollTelegramBot/1.0';
   cUrl = 'https://api.telegram.org/bot%s/sendMessage?chat_id=%d&text=';
 
-  { !!! THIS IS A BLOCKING VERSION BECAUSE THE REPLY SIZE IS VERY SMALL !!! }
+  { !!! THIS THING DONT USE THE ASYNC METHODS, CAN BLOCK THE THREAD IF LAG OR WHATEVER !!! }
 
 procedure ShowError(msg: string);
 begin
@@ -65,7 +65,7 @@ begin
   vHIOU := InternetOpenUrl(fHIO, PChar(vUrl), nil, 0, 0, INTERNET_FLAG_RELOAD);
   if Assigned(vHIOU) then
     try
-      // there should be a loop here but the reply is the json of the message sent so max size should be a bit more than 4kb
+      // the reply is the json of the message sent so max size should be a bit more than 4kb
       // maxmessagelength(4096) + other stuff like ids, name, date, etc...
       if not InternetReadFile(vHIOU, @vBuffer, SizeOf(vBuffer), vBytesRead) then
         ShowError(Format('InternetReadFile(vHIOU) > FAIL [%d]', [GetLastError]))
