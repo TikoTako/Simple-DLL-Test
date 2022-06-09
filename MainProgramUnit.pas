@@ -5,8 +5,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
-  CommonUnit, Vcl.ComCtrls,
-  System.JSON;
+  CommonUnit, Vcl.ComCtrls;
 
 type
   TSetCallBack = procedure(CallBackProcedure: TOnCallBack); stdcall;
@@ -67,14 +66,15 @@ procedure TMainProgramForm.SendMessageButtonClick(Sender: TObject);
 var
   vMsg, vResp: string;
 begin
-  if InputQuery('Test program', 'Please type your name', vMsg) then
-  begin
-    vResp := fSendMessage(PChar(vMsg));
-    if not vResp.IsEmpty then
-      log(vResp)
-    else
-      log('Reply null, setup key and chat id by pressing [Show Window].');
-  end;
+  if InputQuery('Send message via Telegram Bot', 'Message:', vMsg) then
+    if not vMsg.IsEmpty then
+    begin
+      vResp := fSendMessage(PChar(vMsg));
+      if not vResp.IsEmpty then
+        log(vResp)
+      else
+        log('Reply null, setup key and chat id by pressing [Show Window].');
+    end;
 end;
 
 procedure TMainProgramForm.ShowWindowButtonClick(Sender: TObject);
@@ -156,13 +156,18 @@ begin
   else
   begin
     // disabilita butans
-    GetVersionButton.Enabled := false;
-    ShowWindowButton.Enabled := false;
+    for var i := 0 to ControlCount do
+      if Controls[i] is TButton then
+        TButton(Controls[i]).Enabled := false;
     // unload
-    FreeLibrary(fDLLHandle);
-    fGetDllVersion := nil;
-    fShowWindow := nil;
     fDLLHandle := 0;
+    fShowWindow := nil;
+    fSendMessage := nil;
+    fStartThread := nil;
+    fSetCallBack := nil;
+    fGetDllVersion := nil;
+    FreeLibrary(fDLLHandle);
+    LoadUnloadButton.Enabled := true;
     LoadUnloadButton.Caption := 'Load DLL';
   end
 end;
