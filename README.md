@@ -14,5 +14,5 @@ Work In Progress 😅
  - [x] Function load
  - [x] Callbacks
  - [ ] Threads
- - [ ] Telegram bot that just send a message
+ - [x] Telegram bot that just send a message
 
